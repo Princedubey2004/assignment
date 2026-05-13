@@ -11,13 +11,18 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
   const { searchQuery, setSearchQuery } = useSearch();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setIsProfileOpen(false);
+      }
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -65,14 +70,40 @@ const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
           </button>
         </div>
         
-        <button className="p-2.5 hover:bg-accent rounded-2xl transition-all text-muted-foreground relative border border-transparent hover:border-border/50 group">
-          <Bell size={20} className="group-hover:shake" />
-          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full ring-2 ring-background"></span>
-        </button>
+        <div className="relative" ref={notificationsRef}>
+          <button 
+            onClick={() => setShowNotifications(!showNotifications)}
+            className={`p-2.5 rounded-2xl transition-all relative border ${showNotifications ? 'bg-accent border-border/50 text-foreground' : 'text-muted-foreground border-transparent hover:border-border/50 hover:bg-accent'} group`}
+          >
+            <Bell size={20} className="group-hover:shake" />
+            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full ring-2 ring-background"></span>
+          </button>
 
-        <div className="h-10 w-[1px] bg-border mx-2"></div>
+          {/* Step 3: Notifications Dropdown */}
+          {showNotifications && (
+            <div className="absolute right-0 top-14 w-80 rounded-2xl border border-border bg-card p-4 shadow-xl animate-in fade-in zoom-in-95 duration-200 z-50">
+              <h4 className="font-semibold mb-3">Notifications</h4>
 
-        <div className="relative" ref={dropdownRef}>
+              <div className="space-y-3 text-sm">
+                <div className="p-3 rounded-xl bg-accent/40 border border-border/50">
+                  Budget limit reached for Food category
+                </div>
+
+                <div className="p-3 rounded-xl bg-accent/40 border border-border/50">
+                  Credit card payment due tomorrow
+                </div>
+
+                <div className="p-3 rounded-xl bg-accent/40 border border-border/50">
+                  Monthly savings increased by 8%
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="h-10 w-[1px] bg-border mx-1"></div>
+
+        <div className="relative" ref={profileRef}>
           <button 
             onClick={() => setIsProfileOpen(!isProfileOpen)}
             className="flex items-center gap-4 pl-2 cursor-pointer hover:opacity-80 transition-all group"
@@ -102,7 +133,7 @@ const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
 
           {/* Dropdown Menu */}
           {isProfileOpen && (
-            <div className="absolute right-0 mt-4 w-56 bg-card border border-border shadow-2xl rounded-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 py-2">
+            <div className="absolute right-0 mt-4 w-56 bg-card border border-border shadow-2xl rounded-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 py-2 z-50">
               <div className="px-4 py-3 border-b border-border mb-1">
                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Signed in as</p>
                 <p className="text-sm font-bold mt-1 truncate">alex@example.com</p>
